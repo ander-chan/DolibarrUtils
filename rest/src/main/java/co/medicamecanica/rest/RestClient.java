@@ -133,7 +133,7 @@ public static void store(String name, String string){
 
 
 
-         ConsumeWSTask(ConsumeListener mListener) {
+         public ConsumeWSTask(ConsumeListener mListener) {
             this.mListener=mListener;
         }
         @Override
