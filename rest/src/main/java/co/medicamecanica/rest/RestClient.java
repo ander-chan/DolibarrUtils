@@ -130,12 +130,11 @@ public static void store(String name, String string){
         private ConsumeListener mListener;
         private ClientResource cr;
         private Class<?> resource;
-        private Object outResource;
 
 
-         ConsumeWSTask(Class<? extends UserResource> resource,ConsumeListener userListener) {
-            this.mListener=userListener;
-            this.resource=resource;
+
+         ConsumeWSTask(ConsumeListener mListener) {
+            this.mListener=mListener;
         }
         @Override
         protected Integer doInBackground(Void... voids) {
