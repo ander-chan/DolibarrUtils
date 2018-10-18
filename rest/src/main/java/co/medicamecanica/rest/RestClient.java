@@ -135,12 +135,13 @@ public static void store(String name, String string){
 
          public ConsumeWSTask(ConsumeListener mListener) {
             this.mListener=mListener;
+             cr = RestClient.BuildClientResource(RestClient.getURL());
+             RestClient.addToken(cr,RestClient.getToken());
         }
         @Override
         protected Integer doInBackground(Void... voids) {
 
-             cr = RestClient.BuildClientResource(RestClient.getURL());
-            RestClient.addToken(cr,RestClient.getToken());
+
             try{
             cr.wrap(resource);
             return mListener.doInBackground(cr);
