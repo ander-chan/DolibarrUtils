@@ -2,7 +2,7 @@ package co.medicamecanica.rest.login;
 
 import java.io.Serializable;
 
-class Login implements Serializable{
+public class Login implements Serializable{
     private static final long serialVersionUID = 1L;
     private Success success;
 

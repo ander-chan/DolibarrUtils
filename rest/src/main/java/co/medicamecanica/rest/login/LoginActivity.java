@@ -50,7 +50,7 @@ public class LoginActivity extends AppCompatActivity {
     /**
      * Keep track of the login task to ensure we can cancel it if requested.
      */
-    private UserLoginTask mAuthTask = null;
+    private RestClient.UserLoginTask mAuthTask = null;
 
     // UI references.
     private AutoCompleteTextView mUrlView;
@@ -202,8 +202,37 @@ public class LoginActivity extends AppCompatActivity {
             // perform the user login attempt.
             showProgress(true);
 
-            mAuthTask = new UserLoginTask(url, login, password);
-            mAuthTask.execute((Void) null);
+            RestClient.store(RestClient.URL,url);
+            RestClient.store(RestClient.LOGIN,login);
+            // RestClient.store(RestClient.PASSWORD,url);
+            mAuthTask = new RestClient.UserLoginTask(url, login, password,new RestClient.LoginListener(){
+
+                @Override
+                public void onPostExecute(Integer code) {
+                    mAuthTask = null;
+                    showProgress(false);
+                    if (code == 200) {
+
+                        finish();
+                    }else  if (code == 403) {
+                        mLoginlView.setError(getString(R.string.error_incorrect_login));
+                        mLoginlView.requestFocus();
+                        mPasswordView.setText("");
+
+                    }else if (code==500){
+                        mUrlView.setError(getString(R.string.error_incorrect_url));
+                        mUrlView.requestFocus();
+
+                    }
+                }
+
+                @Override
+                public void onCancelled() {
+                    mAuthTask = null;
+                    showProgress(false);
+                }
+            });
+            mAuthTask.execute();
         }
     }
 
