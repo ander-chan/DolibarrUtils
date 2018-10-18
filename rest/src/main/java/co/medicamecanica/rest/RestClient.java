@@ -123,49 +123,50 @@ public static void store(String name, String string){
         return preferences.getString(PASSWORD,null);
     }
 
-    public static class getUserTask extends AsyncTask<Void, Void, Integer> {
+    public static class ConsumeWSTask extends AsyncTask<Void, Void, Integer> {
 
-        private String mLogin;
-        private User user;
 
-        private UserListener userListener;
 
-        public getUserTask(String mRef,UserListener userListener) {
-            this.userListener=userListener;
-            this.mLogin = mRef;
+        private ConsumeListener mListener;
+        private ClientResource cr;
+        private Class<?> resource;
+        private Object outResource;
+
+
+        public ConsumeWSTask(Class<? extends UserResource> resource,ConsumeListener userListener) {
+            this.mListener=userListener;
+            this.resource=resource;
         }
         @Override
         protected Integer doInBackground(Void... voids) {
 
-            ClientResource cr = RestClient.BuildClientResource(RestClient.getURL());
+             cr = RestClient.BuildClientResource(RestClient.getURL());
             RestClient.addToken(cr,RestClient.getToken());
-            cr.addSegment("users");
-            cr.addQueryParameter("sqlfilters","login='"+ mLogin+"'");
-            UserResource ur = cr.wrap(UserResource.class);
-            try {
-                User[] uss = ur.retrive();
-                if(uss!=null) {
-                    if (uss.length > 0) {
-                        user = uss[0];
-                        Log.i("user", user.toString());
-                    } else {
-                        Log.i("user", "not found");
-                    }
-                }
-                return 200;
+            try{
+            cr.wrap(resource);
+            return mListener.doInBackground(cr);
+
 
             }catch (ResourceException e){
 
-                e.printStackTrace();
-                Log.e("get",e.getResource().toString());
+               // e.printStackTrace();
+               // Log.e("get",e.getResource().toString());
                 return e.getResponse().getStatus().getCode();
             }
 
         }
+        private void addQueryParameter(String name,String value){
+            cr.addQueryParameter(name,value);
+        }
+        private void addSegment(String segment) {
+            cr.addSegment( segment);
+        }
 
         @Override
-        protected void onPostExecute(Integer code) {
-            userListener.onPostExecute(user,code);
+        protected void onPostExecute(Integer code)
+        {
+            mListener.onPostExecute(code);
         }
     }
+
 }
