@@ -133,7 +133,7 @@ public static void store(String name, String string){
         private Object outResource;
 
 
-        public ConsumeWSTask(Class<? extends UserResource> resource,ConsumeListener userListener) {
+         ConsumeWSTask(Class<? extends UserResource> resource,ConsumeListener userListener) {
             this.mListener=userListener;
             this.resource=resource;
         }
@@ -155,10 +155,10 @@ public static void store(String name, String string){
             }
 
         }
-        private void addQueryParameter(String name,String value){
+        public  void addQueryParameter(String name,String value){
             cr.addQueryParameter(name,value);
         }
-        private void addSegment(String segment) {
+        public void addSegment(String segment) {
             cr.addSegment( segment);
         }
 
