@@ -27,6 +27,7 @@ import org.restlet.data.MediaType;
 import org.restlet.resource.ClientResource;
 import org.restlet.resource.ResourceException;
 
+import co.medicamecanica.rest.ConsumeListener;
 import co.medicamecanica.rest.R;
 import co.medicamecanica.rest.RestClient;
 
@@ -234,6 +235,17 @@ public class LoginActivity extends AppCompatActivity {
             });
             mAuthTask.execute();
         }
+       new RestClient.ConsumeWSTask<LoginResource>(new ConsumeListener<LoginResource>() {
+            @Override
+            public void onPostExecute(Integer code) {
+
+            }
+
+            @Override
+            public Integer doInBackground(LoginResource wrap) {
+                return null;
+            }
+        });
     }
 
 

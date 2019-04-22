@@ -21,7 +21,16 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
-
+    testOptions {
+        unitTests.all {
+            // All the usual Gradle options.
+            testLogging {
+                events "passed", "skipped", "failed", "standardOut", "standardError"
+                outputs.upToDateWhen {false}
+                showStandardStreams = true
+            }
+        }
+    }
 }
 
 dependencies {
@@ -33,4 +42,7 @@ dependencies {
     implementation 'org.restlet.android:org.restlet:2.3.12'
     implementation 'org.restlet.android:org.restlet.ext.jackson:2.3.12'
     implementation 'org.restlet.android:org.restlet.ext.gson:2.3.12'
+    // https://mvnrepository.com/artifact/com.googlecode.genericdao/dao-hibernate
+   // implementation group: 'com.googlecode.genericdao', name: 'dao-hibernate', version: '1.1.0'
+
 }

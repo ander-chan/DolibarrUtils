@@ -10,6 +10,7 @@ import android.util.Log;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 
+
 import org.restlet.data.Header;
 import org.restlet.data.MediaType;
 import org.restlet.engine.Engine;
@@ -19,6 +20,9 @@ import org.restlet.resource.ClientResource;
 import org.restlet.resource.ResourceException;
 import org.restlet.util.Series;
 
+
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.Date;
 import java.util.concurrent.ConcurrentMap;
 
@@ -32,7 +36,7 @@ public class RestClient {
 
     static SharedPreferences preferences;
     public static String URL = "SERVER_URL";
-
+    //###################################
     //String text = app_preferences.getString("name", "default");
     public static ClientResource BuildClientResource(String uri) {
         store(URL, uri);
@@ -131,15 +135,17 @@ public class RestClient {
         return preferences.getString(PASSWORD, null);
     }
 
-    public static class ConsumeWSTask extends AsyncTask<Void, Void, Integer> {
+    public static class ConsumeWSTask<Resource> extends AsyncTask<Resource, Void, Integer> {
 
 
-        private ConsumeListener mListener;
+        private ConsumeListener<Resource> mListener;
         private ClientResource cr;
-        private Class<?> resource;
+        private Resource resource;
+        Class<Resource> classResource;
+
+        public ConsumeWSTask(ConsumeListener<Resource> mListener) {
 
 
-        public ConsumeWSTask(ConsumeListener mListener) {
             this.mListener = mListener;
             cr = RestClient.BuildClientResource(RestClient.getURL());
 
@@ -147,35 +153,41 @@ public class RestClient {
         }
 
         @Override
-        protected Integer doInBackground(Void... voids) {
+        protected Integer doInBackground(Resource... r) {
             if (RestClient.getToken() == null)
                 return 0;
 
-            try {
-                cr.wrap(resource);
-                return mListener.doInBackground(cr);
-
+            try {if(classResource==null){
+                throw new RuntimeException("Wrap not defined");
+            }
+                return mListener.doInBackground(cr.wrap(classResource));
 
             } catch (ResourceException e) {
 
-                // e.printStackTrace();
-                // Log.e("get",e.getResource().toString());
+                e.printStackTrace();
+                Log.d("get", e.getResource().toString());
                 return e.getResponse().getStatus().getCode();
             }
 
         }
 
-        public void addQueryParameter(String name, String value) {
+        public ConsumeWSTask addQueryParameter(String name, String value) {
             cr.addQueryParameter(name, value);
+            return this;
         }
 
-        public void addSegment(String segment) {
+        public ConsumeWSTask addSegment(String segment) {
             cr.addSegment(segment);
+            return this;
         }
 
         @Override
         protected void onPostExecute(Integer code) {
             mListener.onPostExecute(code);
+        }
+
+        public void wrap(Class<Resource> classResource) {
+            this.classResource=classResource;
         }
     }
 
@@ -214,6 +226,7 @@ public class RestClient {
 
                 Login login = resource.login();
                 Log.i("success", login.toString());
+                System.out.println(login);
                 RestClient.storeToken(login.getSuccess().getToken());
                 /// Log.i("success", login.toString());
                 return 200;
