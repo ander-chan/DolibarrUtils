@@ -57,6 +57,7 @@ public class LoginActivity extends AppCompatActivity {
     private AutoCompleteTextView mUrlView;
     private AutoCompleteTextView mLoginlView;
     private EditText mPasswordView;
+    private EditText mEntityView;
     private View mProgressView;
     private View mLoginFormView;
     private LoginResource resource;
@@ -68,6 +69,7 @@ public class LoginActivity extends AppCompatActivity {
         setupActionBar();
         // Set up the login form.
         mUrlView = (AutoCompleteTextView) findViewById(R.id.url);
+        mEntityView = (EditText) findViewById(R.id.entity);
         mLoginlView = (AutoCompleteTextView) findViewById(R.id.login);
 
         mPasswordView = (EditText) findViewById(R.id.password);
@@ -160,6 +162,7 @@ public class LoginActivity extends AppCompatActivity {
 
         // Store values at the time of the login attempt.
         String url = mUrlView.getText().toString();
+        String entity = mEntityView.getText().toString();
         String login = mLoginlView.getText().toString();
         String password = mPasswordView.getText().toString();
 
@@ -205,8 +208,12 @@ public class LoginActivity extends AppCompatActivity {
 
             RestClient.store(RestClient.URL,url);
             RestClient.store(RestClient.LOGIN,login);
+            if (TextUtils.isEmpty(entity)) {
+                RestClient.store(RestClient.ENTITY,entity);
+            }
+
             // RestClient.store(RestClient.PASSWORD,url);
-            mAuthTask = new RestClient.UserLoginTask(url, login, password,new RestClient.LoginListener(){
+            mAuthTask = new RestClient.UserLoginTask(url, login, password,entity,new RestClient.LoginListener(){
 
                 @Override
                 public void onPostExecute(Integer code) {
@@ -216,7 +223,16 @@ public class LoginActivity extends AppCompatActivity {
 
                         finish();
                     }else  if (code == 403) {
-                        mLoginlView.setError(getString(R.string.error_incorrect_login));
+                        try{
+                           int company= Integer.parseInt(mEntityView.getText().toString());
+                            if(company>1){
+                                mLoginlView.setError(getString(R.string.error_incorrect_entity_login));
+                            }else{
+                                mLoginlView.setError(getString(R.string.error_incorrect_login));
+                            }
+
+                        }catch (Exception e){}
+
                         mLoginlView.requestFocus();
                         mPasswordView.setText("");
 
@@ -299,11 +315,18 @@ public class LoginActivity extends AppCompatActivity {
         private final String mUrl;
         private final String mLogin;
         private final String mPassword;
+        private  String mEntity;
 
         UserLoginTask(String url, String login, String password) {
             mUrl = url;
             mLogin = login;
             mPassword = password;
+        }
+        UserLoginTask(String url, String login, String password,String entity) {
+            mUrl = url;
+            mLogin = login;
+            mPassword = password;
+            mEntity = entity;
         }
 
 
@@ -317,7 +340,7 @@ public class LoginActivity extends AppCompatActivity {
                 // Log.i("login",r.getText());
                 ClientResource cr = RestClient.BuildClientResource(mUrl);
 
-                RestClient.prepareLogin(cr,mLogin,mPassword);
+                RestClient.prepareLogin(cr,mLogin,mPassword,mEntity);
                 resource = cr.wrap(LoginResource.class);
 
                 Login login = resource.login();
