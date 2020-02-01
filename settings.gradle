@@ -1,1 +1,1 @@
-include ':app', ':rest', ':login'
+include ':app', ':dolutils'

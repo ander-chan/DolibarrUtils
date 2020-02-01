@@ -57,6 +57,7 @@ public class LoginActivity extends AppCompatActivity {
     private AutoCompleteTextView mUrlView;
     private AutoCompleteTextView mLoginlView;
     private EditText mPasswordView;
+    private EditText mEntityView;
     private View mProgressView;
     private View mLoginFormView;
     private LoginResource resource;
@@ -69,7 +70,7 @@ public class LoginActivity extends AppCompatActivity {
         // Set up the login form.
         mUrlView = (AutoCompleteTextView) findViewById(R.id.url);
         mLoginlView = (AutoCompleteTextView) findViewById(R.id.login);
-
+        mEntityView = (EditText) findViewById(R.id.entity);
         mPasswordView = (EditText) findViewById(R.id.password);
         mPasswordView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
@@ -160,6 +161,10 @@ public class LoginActivity extends AppCompatActivity {
 
         // Store values at the time of the login attempt.
         String url = mUrlView.getText().toString();
+        String entity = mEntityView.getText().toString();
+        if(entity.equals("")){
+            entity="0";
+        }
         String login = mLoginlView.getText().toString();
         String password = mPasswordView.getText().toString();
 
@@ -206,7 +211,7 @@ public class LoginActivity extends AppCompatActivity {
             RestClient.store(RestClient.URL,url);
             RestClient.store(RestClient.LOGIN,login);
             // RestClient.store(RestClient.PASSWORD,url);
-            mAuthTask = new RestClient.UserLoginTask(url, login, password,new RestClient.LoginListener(){
+            mAuthTask = new RestClient.UserLoginTask(url, login, password,entity,new RestClient.LoginListener(){
 
                 @Override
                 public void onPostExecute(Integer code) {
@@ -299,11 +304,13 @@ public class LoginActivity extends AppCompatActivity {
         private final String mUrl;
         private final String mLogin;
         private final String mPassword;
+        private final String mEntity;
 
-        UserLoginTask(String url, String login, String password) {
+        UserLoginTask(String url, String login, String password,String entity) {
             mUrl = url;
             mLogin = login;
             mPassword = password;
+            mEntity = entity;
         }
 
 
@@ -317,7 +324,7 @@ public class LoginActivity extends AppCompatActivity {
                 // Log.i("login",r.getText());
                 ClientResource cr = RestClient.BuildClientResource(mUrl);
 
-                RestClient.prepareLogin(cr,mLogin,mPassword);
+                RestClient.prepareLogin(cr,mLogin,mPassword,mEntity);
                 resource = cr.wrap(LoginResource.class);
 
                 Login login = resource.login();

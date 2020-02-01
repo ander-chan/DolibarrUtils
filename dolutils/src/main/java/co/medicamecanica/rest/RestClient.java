@@ -1,6 +1,7 @@
 package co.medicamecanica.rest;
 
 import android.content.Context;
+import android.content.Entity;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.StrictMode;
@@ -29,7 +30,7 @@ import java.util.concurrent.ConcurrentMap;
 import co.medicamecanica.rest.login.*;
 
 public class RestClient {
-
+    public static final String ENTITY = "SERVER_ENTITY";
     public static final String LOGIN = "SERVER_LOGIN";
     public static final String PASSWORD = "SERVER_PASSWORD";
     public static final String TOKEN = "SERVER_TOKEN";
@@ -76,7 +77,7 @@ public class RestClient {
         return preferences.getString(URL, "");
     }
 
-    public static void prepareLogin(ClientResource cr, String login, String password) {
+    public static void prepareLogin(ClientResource cr, String login, String password,String entity) {
 
         //  String login = preferences.getString(LOGIN, "");
         //String pass = preferences.getString(PASSWORD, "");
@@ -86,6 +87,11 @@ public class RestClient {
         cr.addSegment("login");
         cr.addQueryParameter("login", login);
         cr.addQueryParameter("password", password);
+        try {
+            Integer.parseInt(entity);
+            cr.addQueryParameter("entity", entity);
+            store(ENTITY, entity);
+        }catch (Exception e){}
 
 
     }
@@ -200,11 +206,13 @@ public class RestClient {
         private final String mLogin;
         private final String mPassword;
         LoginListener loginListener;
+        private String mEntity;
 
-        public UserLoginTask(String url, String login, String password, LoginListener loginListener) {
+        public UserLoginTask(String url, String login, String password,String entity, LoginListener loginListener) {
             this.mUrl = url;
             this.mLogin = login;
             this.mPassword = password;
+            this.mEntity=entity;
             this.loginListener = loginListener;
         }
 
@@ -221,7 +229,7 @@ public class RestClient {
                     return 0;
                 ClientResource cr = RestClient.BuildClientResource(mUrl);
 
-                RestClient.prepareLogin(cr, mLogin, mPassword);
+                RestClient.prepareLogin(cr, mLogin, mPassword,mEntity);
                 LoginResource resource = cr.wrap(LoginResource.class);
 
                 Login login = resource.login();
