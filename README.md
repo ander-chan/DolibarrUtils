@@ -64,7 +64,7 @@ Ahora, en el Activity, inicializar el cliente rest.
             }
         
   O como menú de configuración, Si se obtiene el token con éxito todas las 
-  propiedades (url,login,password,tocken) estarán seteadas en la clase estatica REST.
+  propiedades (url,login,password,token) estarán seteadas en la clase estatica REST.
   
 
     public boolean onOptionsItemSelected(MenuItem item) {
